@@ -1,0 +1,37 @@
+# allows access to services from outside the cluster
+kind: Ingress
+
+apiVersion: networking.k8s.io/v1
+
+metadata:
+  # name of the ingress
+  name: asset-management-ingress
+  # separate namespace to organize cluster's resource
+  namespace: {{ .Release.namespace }}
+  annotations:
+    # shared nginx ingress
+    kubernetes.io/ingress.class: "nginx"
+
+spec:
+  rules:
+    # host name
+    - host: {{ .Values.ingress.host }}
+      http:
+        # paths specification
+        paths:
+          - path: /
+            # matches based on a prefix in the URL path
+            pathType: Prefix
+            backend:
+              # service to point
+              service:
+                name: asset-management-frontend-service
+                port:
+                  number: {{ .Values.service.frontend.port }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: asset-management-server-service
+                port:
+                  number: {{ .Values.service.server.port }}
